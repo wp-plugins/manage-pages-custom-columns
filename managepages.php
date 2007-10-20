@@ -1,13 +1,4 @@
 <?php
-/*
-Plugin Name: Manage Pages Custom Columns
-Plugin URI: http://www.scompt.com/projects/manage-pages-custom-columns-in-wordpress
-Description: Replicates the custom column feature of the manage posts page.
-Author: Edward Dale
-Version: 1.0-beta1
-Author URI: http://www.scompt.com
-*/
-
 /**
  * Main plugin file for Zensor which initializes and includes all other files
  *
@@ -34,9 +25,42 @@ Author URI: http://www.scompt.com
  * @since      1.0
  */
 
-function scompt_load_page() {
+require_once('JSON.php');
+
+add_action('manage_pages_custom_column', 'ed_custom_column', 10, 2);
+function ed_custom_column($column_name, $id) {
+    global $post;
+    
+    if( $column_name == 'woo_id' ) {
+      echo $id;  
+    } else if( $column_name == 'blah' ) {
+        var_dump( $post);
+    }
+}
+
+add_filter( 'manage_pages_columns', 'ed_test');
+function ed_test($defaults) {
+    unset($defaults['id']);
+    unset($defaults['title']);
+    $defaults['woo_id'] = 'Woo ID';
+    $defaults['blah'] = 'Page';
+    return $defaults;
+}
+
+/**
+ * Figures out all the content that should be added after the page is loaded.
+ *
+ * This function is called by the load-edit-pages.php action hook.  It applies
+ * the manage_pages_columns filter to get the column changes the user wants to 
+ * make.  If there are any changes, then the changes are saved to be replayed 
+ * by Javascript later.  The data for the columns is then generated and saved
+ * also.
+ *
+ * If anything needs to be done, then the admin_head action is hooked onto.
+ */
+function scompt_load_edit_pages() {
     global $scompt_changes;
-    $scompt_changes = array();
+    $scompt_changes = array('deletions'=>array(), 'additions'=>array());
     
     // Defaults copied from edit-pages.php line 34
     $default_columns = array('id' => __('ID'),
@@ -75,6 +99,11 @@ function scompt_load_page() {
     }
 }
 
+/**
+ * Capture the data for the columns.
+ *
+ * Called by the wp action.
+ */
 function scompt_wp($the_wp) {
     global $posts;
     
@@ -89,6 +118,11 @@ function scompt_wp($the_wp) {
     }
 }
 
+/**
+ * Captures data for the columns for an individual row.
+ *
+ * Copied and modified from edit-pages.php.
+ */
 function scompt_page_rows( $parent = 0, $level = 0, $pages = 0, $hierarchy = true ) {
 	global $wpdb, $class, $post, $scompt_changes;
 
@@ -104,11 +138,11 @@ function scompt_page_rows( $parent = 0, $level = 0, $pages = 0, $hierarchy = tru
 			continue;
 
 		$post->post_title = wp_specialchars( $post->post_title );
-		$pad = str_repeat( '&#8212; ', $level );
 		$id = (int) $post->ID;
-		$class = ('alternate' == $class ) ? '' : 'alternate';
-
+ 
         foreach( $scompt_changes['additions'] as $column_name=>$column_display_name) {
+            // For each addition, do the 'manage_pages_custom_column' action
+            // capturing the results and storing them for the Javascript later
             ob_start();
             do_action('manage_pages_custom_column', $column_name, $id);
             $output = ob_get_clean();
@@ -119,44 +153,59 @@ function scompt_page_rows( $parent = 0, $level = 0, $pages = 0, $hierarchy = tru
 	}
 }
 
+/**
+ * Sticks everything in the header and executes it on page load.
+ *
+ * Goes through all the data stored in the $scompt_changes variable, converts
+ * it to JSON and writes it on the page.  On page load, jQuery runs through
+ * all the data adding and deleting columns and data.
+ *
+ * Called by the admin_head action.
+ */
 function scompt_head() {
     global $scompt_changes;
 
+    // Convert everything to JSON
+    $json = new Services_JSON();
+    $deletions_json = $json->encode($scompt_changes['deletions']);
+    $additions_json = $json->encode(array_reverse($scompt_changes['additions']));
+    $data_json = $json->encode($scompt_changes['data']);
     // magic number for where a cell should be inserted to account for action buttons
     $position = 5-count($scompt_changes['deletions']);
+
     ?>
-            <script type="text/javascript">
-            //<![CDATA[
-              jQuery.noConflict();
-                addLoadEvent( function() {
-    <?php
-    if( !empty($scompt_changes['deletions'] ) ) {
-        foreach( $scompt_changes['deletions'] as $deletion ) {
-            $deletion++; // 0-based to 1-based
-            echo "jQuery('thead/tr/*:nth-child($deletion)').remove();\n";
-            echo "jQuery('tbody/tr/*:nth-child($deletion)').remove();\n";
-        }
-    }
-    if( !empty($scompt_changes['additions'])) {
-        foreach( $scompt_changes['additions'] as $name=>$display_name ) {
-            echo "jQuery('<th>$display_name</th>').insertBefore('thead/tr/th:last');\n";
-        }
-    }
-    if( !empty($scompt_changes['data'])) {
-        foreach( $scompt_changes['data'] as $post_id=>$new_data ) {
-            foreach( array_reverse($new_data) as $field=>$value ) {
-                echo "jQuery('<td>$value</td>').insertBefore('#page-$post_id/td:nth-child($position)');\n";
-            }
-        }
-    }
-    
-    ?>
+    <script type="text/javascript">
+    //<![CDATA[
+        addLoadEvent( function() {
+            <?php
+            echo "var additions=$additions_json;\n";
+            echo "var deletions=$deletions_json;\n";
+            echo "var data=$data_json;\n";            
+            echo "var position=$position;\n";            
+            ?>
+
+            deletions.forEach(function(x,i,a){
+                x++;
+                jQuery('thead/tr/*:nth-child('+x+')').remove();
+                jQuery('tbody/tr/*:nth-child('+x+')').remove();
             });
-        //]]>
-        </script>
+            
+            for( a in additions ) {
+                jQuery('<th>'+additions[a]+'</th>').insertBefore('thead/tr/th:last');
+            }
+            
+            
+            for( d in data ) {
+                for( e in data[d] ) {
+                    jQuery('<td>'+data[d][e]+'</td>').insertBefore('#page-'+d+'/td:nth-child('+position+')');
+                }
+            }
+        });
+    //]]>
+    </script>
     <?php
 }
 
-
-add_action( 'load-edit-pages.php', 'scompt_load_page');
+// Get things going when the edit-pages.php file is loaded
+add_action( 'load-edit-pages.php', 'scompt_load_edit-pages');
 ?>
