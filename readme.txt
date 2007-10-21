@@ -14,9 +14,9 @@ Replicates the custom column feature of the manage posts page.  This is in respo
 
 == Installation ==
 
-Just copy the `managepages.php` file to your plugins directory and activate it in WordPress.  You'll then have access to the `manage_pages_custom_column` action and `manage_pages_columns` filter.
+Copy the `managepages` directory to your plugins directory and activate the Manage Pages Custom Columns plugin from WordPress.  You'll then have access to the `manage_pages_custom_column` action and `manage_pages_columns` filter.
 
-Alternatively, you can include the `managepages.php` file with your plugin.  It can then be included using `require_once('managepages.php')` and used just as above.
+Alternatively, you can copy the `managepages.php` and `JSON.php` files to your own plugin and distribute them.  To use, just include `managepages.php` using something like `require_once('managepages.php')` and continue as detailed above.  Don't worry about other plugins including the code also, you're protected.
 
 == Frequently Asked Questions ==
 
