@@ -1,10 +1,10 @@
 === Manage Pages Custom Columns ===
 Contributors: scompt
 Donate link: http://www.scompt.com/projects/manage-pages-custom-columns-in-wordpress
-Tags: manage, edit, pages
+Tags: manage, edit, pages, admin, plugin
 Requires at least: 2.2
 Tested up to: 2.3
-Stable tag: trunk
+Stable tag: 1.0
 
 Replicates the custom column feature of the Manage Posts page for the Manage
 Pages page.
@@ -25,7 +25,7 @@ Alternatively, you can copy the `managepages.php` and `JSON.php` files to your o
 
 = None yet! =
 
-[Ask a question!](mailto:scompt@scompt.com)
+[Ask a question](mailto:scompt@scompt.com)
 
 == Screenshots ==
 
@@ -33,7 +33,7 @@ Alternatively, you can copy the `managepages.php` and `JSON.php` files to your o
 
 == Future Plans ==
 
-* None!
+* None, [suggest something!](mailto:scompt@scompt.com)
 
 == Version History ==
 
