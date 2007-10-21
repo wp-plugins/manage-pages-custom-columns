@@ -6,11 +6,14 @@ Requires at least: 2.2
 Tested up to: 2.2
 Stable tag: trunk
 
-Replicates the custom column feature of the manage posts page.
+Replicates the custom column feature of the Manage Posts page for the Manage
+Pages page.
 
 == Description ==
 
 Replicates the custom column feature of the manage posts page.  This is in response to the long-standing [enhancement request](http://trac.wordpress.org/ticket/2284).  It provides a `manage_pages_custom_column` action and `manage_pages_columns` filter which can be used similarly to the `manage_posts_custom_column` action and `manage_posts_columns` filter provided by WordPress.
+
+A tutorial on [how to add custom columns to the manage posts screen](http://scompt.com/archives/2007/10/20/adding-custom-columns-to-the-wordpress-manage-posts-screen) can be viewed on my website.
 
 == Installation ==
 

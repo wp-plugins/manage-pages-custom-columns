@@ -1,6 +1,13 @@
 <?php
 /**
- * Main plugin file for Zensor which initializes and includes all other files
+ * Main file for Manage Pages Custom Columns.  Includes everything needed to
+ * enable the 'manage_pages_custom_column' action and the 'manage_pages_column' 
+ * filter.  Upon inclusion, all actions/filters will have already been hooked.
+ *
+ * Usage:
+ *    require_once('managepages.php');
+ *
+ * That's it!
  *
  * LICENSE
  * This program is free software: you can redistribute it and/or modify
@@ -33,7 +40,12 @@ if( !class_exists('Services_JSON') )
 if( !class_exists('Scompt_Manage_Pages') ) {
 
     /**
-     * 
+     * This class enables the 'manage_pages_custom_column' action and the
+     * 'manage_pages_column' filter to provide custom columns on the Manage Pages
+     * subpanel of the administration screen.  Usage is analageous to that of
+     * the 'manage_posts_custom_column' action and the 'manage_pages_column'
+     * filter, which can be read about at 
+     * http://scompt.com/archives/2007/10/20/adding-custom-columns-to-the-wordpress-manage-posts-screen
      */
     class Scompt_Manage_Pages {
     
@@ -86,14 +98,13 @@ if( !class_exists('Scompt_Manage_Pages') ) {
                 }
 
                 // Set things up for the header display
-                add_action('admin_head', array(&$this, 'head'));
+                add_action('admin_footer', array(&$this, 'output'));
             	wp_enqueue_script('jquery');
 
-                // Run the same wp function call as edit-pages does, with actions added
-                // so the data can be grabbed as it happens.
+                // When the wp action is run, we'll have access to all the pages 
+                // which are being displayed, so we can go through them and 
+                // grab our extra data
                 add_action('wp', array(&$this,'wp'));
-            	wp('post_type=page&orderby=menu_order&what_to_show=posts&posts_per_page=-1&posts_per_archive_page=-1&order=asc');
-                remove_action('wp', array(&$this,'wp'));
             }
         }
 
@@ -152,15 +163,15 @@ if( !class_exists('Scompt_Manage_Pages') ) {
         }
 
         /**
-         * Sticks everything in the header and executes it on page load.
+         * Outputs everything to the pages and executes it on page load.
          *
          * Goes through all the data stored in the $changes variable, converts
          * it to JSON and writes it on the page.  On page load, jQuery runs through
          * all the data adding and deleting columns and data.
          *
-         * Called by the admin_head action.
+         * Called by the admin_footer action.
          */
-        function head() {
+        function output() {
             // Convert everything to JSON
             $json = new Services_JSON();
             $deletions_json = $json->encode($this->changes['deletions']);

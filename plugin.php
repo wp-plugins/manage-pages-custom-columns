@@ -10,24 +10,24 @@ Author URI: http://www.scompt.com
 
 require_once('managepages.php');
 
-add_action('manage_pages_custom_column', 'ed_custom_column', 10, 2);
-function ed_custom_column($column_name, $id) {
-    global $post;
-    
-    if( $column_name == 'woo_id' ) {
-      echo $id;  
-    } else if( $column_name == 'blah' ) {
-        var_dump( $post);
-    }
-}
-
-add_filter( 'manage_pages_columns', 'ed_test');
-function ed_test($defaults) {
-    unset($defaults['id']);
-    unset($defaults['title']);
-    $defaults['woo_id'] = 'Woo ID';
-    $defaults['blah'] = 'Page';
-    return $defaults;
-}
+// add_action('manage_pages_custom_column', 'ed_custom_column', 10, 2);
+// function ed_custom_column($column_name, $id) {
+//     global $post;
+//     
+//     if( $column_name == 'woo_id' ) {
+//       echo $id;  
+//     } else if( $column_name == 'blah' ) {
+//         var_dump( $post);
+//     }
+// }
+// 
+// add_filter( 'manage_pages_columns', 'ed_test');
+// function ed_test($defaults) {
+//     unset($defaults['id']);
+//     unset($defaults['title']);
+//     $defaults['woo_id'] = 'Woo ID';
+//     $defaults['blah'] = 'Page';
+//     return $defaults;
+// }
 
 ?>
