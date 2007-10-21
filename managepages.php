@@ -114,14 +114,21 @@ if( !class_exists('Scompt_Manage_Pages') ) {
          * Called by the wp action.
          */
         function wp($the_wp) {
-            global $posts;
-    
-            // From edit-pages.php line 24
-            if ( $_GET['s'] )
-            	$all = false;
-            else
-            	$all = true;
+            global $posts, $wp_version;
 
+            if( strpos($wp_version, '2.3') === 0 ) {
+                // From WordPress Version 2.3 edit-pages.php line ~20
+                $h2_search = isset($_GET['s']) && $_GET['s'] ? ' ' . sprintf(__('matching &#8220;%s&#8221;'), wp_specialchars( stripslashes( $_GET['s'] ) ) ) : '';
+            	$post_status_q = '&post_status=' . $_GET['post_status'];
+                $all = !( $h2_search || $post_status_q );
+            } else {
+                // From WordPress version 2.2 edit-pages.php line 24
+                if ( $_GET['s'] )
+                	$all = false;
+                else
+                	$all = true;
+            }
+            
             if ($posts) {
                 $this->page_rows(0, 0, $posts, $all);
             }

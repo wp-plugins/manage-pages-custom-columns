@@ -3,7 +3,7 @@ Contributors: scompt
 Donate link: http://www.scompt.com/projects/manage-pages-custom-columns-in-wordpress
 Tags: manage, edit, pages
 Requires at least: 2.2
-Tested up to: 2.2
+Tested up to: 2.3
 Stable tag: trunk
 
 Replicates the custom column feature of the Manage Posts page for the Manage
