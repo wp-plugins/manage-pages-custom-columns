@@ -29,7 +29,7 @@ Alternatively, you can copy the `managepages.php` and `JSON.php` files to your o
 
 == Screenshots ==
 
-None yet
+1. The Manage Pages screen with two additional columns: the [Zensor](http://www.scompt.com/projects/zensor) moderation status and post attachments.
 
 == Future Plans ==
 
