@@ -101,73 +101,34 @@ if( !class_exists('Scompt_Manage_Pages') ) {
                 add_action('admin_footer', array(&$this, 'output'));
             	wp_enqueue_script('jquery');
 
-                // When the wp action is run, we'll have access to all the pages 
-                // which are being displayed, so we can go through them and 
-                // grab our extra data
-                add_action('wp', array(&$this,'wp'));
+                // The title is always shown in a row, so use the the_title filter
+                // to capture the additional details for the row
+                add_filter('the_title', array(&$this, 'do_title'));
             }
         }
 
         /**
-         * Capture the data for the columns.
+         * A dummy filter for the_title that captures additional column info.
          *
-         * Called by the wp action.
+         * Called by the the_title filter.  Always returns the parameter that
+         * was passed to it.
          */
-        function wp($the_wp) {
-            global $posts, $wp_version;
+        function do_title($title) {
+            global $post;
+            $id = (int) $post->ID;
 
-            if( strpos($wp_version, '2.3') === 0 ) {
-                // From WordPress Version 2.3 edit-pages.php line ~20
-                $h2_search = isset($_GET['s']) && $_GET['s'] ? ' ' . sprintf(__('matching &#8220;%s&#8221;'), wp_specialchars( stripslashes( $_GET['s'] ) ) ) : '';
-            	$post_status_q = '&post_status=' . $_GET['post_status'];
-                $all = !( $h2_search || $post_status_q );
-            } else {
-                // From WordPress version 2.2 edit-pages.php line 24
-                if ( $_GET['s'] )
-                	$all = false;
-                else
-                	$all = true;
+            foreach( $this->changes['additions'] as $column_name=>$column_display_name) {
+                // For each addition, do the 'manage_pages_custom_column' action
+                // capturing the results and storing them for the Javascript later
+                ob_start();
+                do_action('manage_pages_custom_column', $column_name, $id);
+                $output = ob_get_clean();
+                $this->changes['data'][$id][$column_name] = $output;
             }
-            
-            if ($posts) {
-                $this->page_rows(0, 0, $posts, $all);
-            }
+
+            return $title;
         }
 
-        /**
-         * Captures data for the columns for an individual row.
-         *
-         * Copied and modified from edit-pages.php.
-         */
-        function page_rows( $parent = 0, $level = 0, $pages = 0, $hierarchy = true ) {
-        	global $wpdb, $class, $post;
-
-        	if (!$pages )
-        		$pages = get_pages( 'sort_column=menu_order' );
-
-        	if (! $pages )
-        		return false;
-
-        	foreach ( $pages as $post) {
-        		setup_postdata( $post);
-        		if ( $hierarchy && ($post->post_parent != $parent) )
-        			continue;
-
-        		$post->post_title = wp_specialchars( $post->post_title );
-        		$id = (int) $post->ID;
- 
-                foreach( $this->changes['additions'] as $column_name=>$column_display_name) {
-                    // For each addition, do the 'manage_pages_custom_column' action
-                    // capturing the results and storing them for the Javascript later
-                    ob_start();
-                    do_action('manage_pages_custom_column', $column_name, $id);
-                    $output = ob_get_clean();
-                    $this->changes['data'][$id][$column_name] = $output;
-                }
-
-        		if ( $hierarchy ) $this->page_rows( $id, $level + 1, $pages );
-        	}
-        }
 
         /**
          * Outputs everything to the pages and executes it on page load.
