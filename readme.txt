@@ -4,7 +4,7 @@ Donate link: http://www.scompt.com/projects/manage-pages-custom-columns-in-wordp
 Tags: manage, edit, pages, admin, plugin
 Requires at least: 2.2
 Tested up to: 2.3
-Stable tag: 1.0
+Stable tag: trunk
 
 Replicates the custom column feature of the Manage Posts page for the Manage
 Pages page.  Obsolete as of WP 2.4.
