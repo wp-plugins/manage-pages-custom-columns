@@ -7,9 +7,11 @@ Tested up to: 2.3
 Stable tag: 1.0
 
 Replicates the custom column feature of the Manage Posts page for the Manage
-Pages page.
+Pages page.  Obsolete as of WP 2.4.
 
 == Description ==
+
+This plugin is obsolete as of WordPress 2.4.
 
 Replicates the custom column feature of the manage posts page.  This is in response to the long-standing [enhancement request](http://trac.wordpress.org/ticket/2284).  It provides a `manage_pages_custom_column` action and `manage_pages_columns` filter which can be used similarly to the `manage_posts_custom_column` action and `manage_posts_columns` filter provided by WordPress.
 
